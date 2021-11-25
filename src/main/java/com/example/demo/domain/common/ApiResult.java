@@ -1,5 +1,7 @@
 package com.example.demo.domain.common;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -11,8 +13,11 @@ import org.springframework.http.ResponseEntity;
 @Getter
 @RequiredArgsConstructor
 public class ApiResult<T> {
+    @ApiModelProperty
     private final T data;
+    @ApiModelProperty
     private final String error;
+    @ApiModelProperty
     private final HttpStatus httpStatus;
 
     public static <T> ResponseEntity<ApiResult<T>> succeed(T data) {
