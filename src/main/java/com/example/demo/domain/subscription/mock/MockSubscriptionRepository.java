@@ -7,7 +7,7 @@ import com.example.demo.domain.product.ProductRepository;
 import com.example.demo.domain.product.mock.MockProductRepository;
 import com.example.demo.domain.subscription.Subscription;
 import com.example.demo.domain.subscription.SubscriptionRepository;
-import com.example.demo.domain.subscription.dto.SubscriptionDto;
+import com.example.demo.domain.subscription.SubscriptionInfo;
 import com.example.demo.domain.user.User;
 import com.example.demo.domain.user.UserRepository;
 import com.example.demo.domain.user.mock.MockUserRepository;
@@ -33,8 +33,8 @@ public class MockSubscriptionRepository extends MockRepository<Subscription> imp
         Subscription subscription = super.newEntity();
         subscription.setUser(getAnyUser());
         subscription.setProduct(getAnyProduct());
-        subscription.setSubscriptionDto(new SubscriptionDto());
-        subscription.setSubscriptionManager(TASK_MANAGER_CONNECTION_POOL.allocateSubscriptionManager());
+        subscription.setSubscriptionInfo(new SubscriptionInfo());
+        subscription.allocateManager(TASK_MANAGER_CONNECTION_POOL.allocateSubscriptionManager());
         return subscription;
     }
 

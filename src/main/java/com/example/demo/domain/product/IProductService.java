@@ -4,13 +4,15 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public interface IProductService {
-    List<Product> searchAllProducts();
+    List<Product> findAllProducts();
 
-    List<Product> searchProducts(Predicate<Product> searchCondition);
+    List<Product> findProducts(Predicate<Product> searchCondition);
 
-    Product searchProductById(Long productId);
+    Product findProductById(Long productId);
 
     Product addProduct(Product product);
 
     Product modifyProduct(Product product);
+
+    void removeProductById(Long productId);
 }

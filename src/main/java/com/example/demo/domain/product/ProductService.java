@@ -14,22 +14,31 @@ public class ProductService implements IProductService {
         this(MockProductRepository.getInstance());
     }
 
-    public List<Product> searchAllProducts() {
+    @Override
+    public List<Product> findAllProducts() {
         return productRepository.findAll();
     }
 
-    public List<Product> searchProducts(Predicate<Product> searchCondition) {
+    @Override
+    public List<Product> findProducts(Predicate<Product> searchCondition) {
         return productRepository.findByPredicate(searchCondition);
     }
 
-    public Product searchProductById(Long productId) {
+    @Override
+    public Product findProductById(Long productId) {
         return productRepository.findById(productId);
     }
 
+    @Override
     public Product addProduct(Product product) {
         return productRepository.save(product);
     }
 
+    @Override
     public Product modifyProduct(Product product) { return productRepository.save(product); }
 
+    @Override
+    public void removeProductById(Long productId) {
+        productRepository.deleteById(productId);
+    }
 }

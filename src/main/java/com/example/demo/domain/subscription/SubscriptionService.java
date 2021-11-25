@@ -1,5 +1,7 @@
 package com.example.demo.domain.subscription;
 
+import com.example.demo.domain.contract.Contract;
+import com.example.demo.domain.contract.ContractService;
 import com.example.demo.domain.manager.TaskManagerConnectionPool;
 import com.example.demo.domain.manager.subscription.SubscriptionManager;
 import com.example.demo.domain.message.MessageService;
@@ -7,7 +9,6 @@ import com.example.demo.domain.message.mock.MockMessageService;
 import com.example.demo.domain.product.Product;
 import com.example.demo.domain.product.ProductRepository;
 import com.example.demo.domain.product.mock.MockProductRepository;
-import com.example.demo.domain.subscription.dto.SubscriptionDto;
 import com.example.demo.domain.subscription.mock.MockSubscriptionRepository;
 import com.example.demo.domain.subscription.uw.UnderWriting;
 import com.example.demo.domain.subscription.uw.UnderWritingService;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SubscriptionService implements ISubscriptionService {
     private final UnderWritingService underWritingService;
+    private final ContractService contractService;
     private final MessageService messageService;
     private final TaskManagerConnectionPool taskManagerConnectionPool;
     private final SubscriptionRepository subscriptionRepository;
@@ -34,6 +36,7 @@ public class SubscriptionService implements ISubscriptionService {
     public SubscriptionService() {
         this(
                 new UnderWritingService(),
+                new ContractService(),
                 new MockMessageService(),
                 new TaskManagerConnectionPool(),
                 MockSubscriptionRepository.getInstance(),
@@ -42,17 +45,16 @@ public class SubscriptionService implements ISubscriptionService {
         );
     }
 
-    //    protected List<Subscription> searchAllSubscriptions() {
-//        return subscriptionRepository.findAll();
-//    }
 
-    protected List<Subscription> searchSubscriptions(Predicate<Subscription> searchCondition) {
-        return subscriptionRepository.findAll().stream().filter(searchCondition).collect(Collectors.toList());
+
+    @Override
+    public List<Subscription> findAllSubscriptions() {
+        return subscriptionRepository.findAll();
     }
 
     @Override
-    public List<Subscription> findAll() {
-        return subscriptionRepository.findAll();
+    public List<Subscription> findSubscriptions(Predicate<Subscription> predicate) {
+        return findAllSubscriptions().stream().filter(predicate).collect(Collectors.toList());
     }
 
     @Override
@@ -62,21 +64,21 @@ public class SubscriptionService implements ISubscriptionService {
 
     @Override
     public List<Subscription> findSubscriptionsByManagerId(Long managerId) {
-        return subscriptionRepository.findByPredicate(subscription -> Objects.equals(managerId, subscription.getSubscriptionManager().getId()));
+        return subscriptionRepository.findByPredicate(subscription -> Objects.equals(managerId, subscription.getManager().getId()));
     }
 
     @Override
-    public Subscription subscribeInsurance(Long productId, Long userId, SubscriptionDto subscriptionDto) {
+    public Subscription subscribeInsurance(Long productId, Long userId, SubscriptionInfo subscriptionInfo) {
         // 1. Request Parameter Validation Check
-        if (!checkValidationOfSubscription(productId, userId, subscriptionDto)) {
-            throw new InvalidRequestException(String.format("Not Valid Subscription Request. [%s]", subscriptionDto));
+        if (!checkValidationOfSubscription(productId, userId, subscriptionInfo)) {
+            throw new InvalidRequestException(String.format("Not Valid Subscription Request. [%s]", subscriptionInfo));
         }
 
         User user = userRepository.findById(userId);
         Product product = productRepository.findById(productId);
 
         // 2. Subscription 신규 추가
-        Subscription subscription = createAndSaveSubscription(product, user, subscriptionDto);
+        Subscription subscription = createAndSaveSubscription(product, user, subscriptionInfo);
 
         // 2. SMS 메시지 전송
         messageService.send(subscription.getSubscriptionManagerName(), "[신규 보험가입 요청] %s", subscription);
@@ -89,32 +91,37 @@ public class SubscriptionService implements ISubscriptionService {
         // 1. UnderWriting 요청
         UnderWriting underWriting = underWritingService.requestUnderWriting(subscriptionId);
 
-        // 2. Subscription 조회
+        // 2. Subscription State Update (PROGRESS_UW)
         Subscription subscription = underWriting.getSubscription();
-
-        // 3. Subscription State Update (PROGRESS_UW)
-        subscription.setState(Subscription.SubscriptionState.PROGRESS_UW);
-
-        // 4. Subscription DB에 저장
-        Subscription modifiedSubscription = subscriptionRepository.save(subscription);
-
-        // 5. 보험가입 인가 요청 처리 진행 사항 메시지 전송
-        messageService.send(modifiedSubscription.getSubscriptionManagerName(), "[보험가입 인가 요청 처리 중] %s", underWriting);
+        subscription.progressUW();
+        subscriptionRepository.save(subscription);
 
         return underWriting;
     }
 
-//    protected Subscription addSubscription(Subscription subscription) {
-//        return subscriptionRepository.save(subscription);
-//    }
-//
-//    protected Subscription modifySubscription(Subscription subscription) {
-//        return subscriptionRepository.save(subscription);
-//    }
+    @Override
+    public Contract registerSubscriptionResult(Long subscriptionId) {
+        Subscription subscription = subscriptionRepository.findById(subscriptionId);
+        if (Objects.isNull(subscription)) {
+            return null;
+        }
 
-    private Subscription createAndSaveSubscription(Product product, User user, SubscriptionDto subscriptionDto) {
+        subscription.complete();
+        subscriptionRepository.save(subscription);
+
+        messageService.send(subscription.getSubscriptionManagerName(), "[보험가입 요청 처리 결과 등록 완료] %s", subscription);
+        messageService.send(subscription.getUserName(), "[보험가입 요청 결과: %s] %s", subscription.isValid() ? "성공" : "실패", subscription);
+
+        if (subscription.isNotValid()) {
+            return null;
+        }
+
+        return contractService.createContract(subscription.getId());
+    }
+
+    private Subscription createAndSaveSubscription(Product product, User user, SubscriptionInfo subscriptionInfo) {
         // 1. Subscription 초기 생성
-        Subscription subscription = new Subscription(product, user, subscriptionDto);
+        Subscription subscription = new Subscription(product, user, subscriptionInfo);
 
         // 2. SubscriptionManager 할당
         SubscriptionManager subscriptionManager = taskManagerConnectionPool.allocateSubscriptionManager();
@@ -124,8 +131,8 @@ public class SubscriptionService implements ISubscriptionService {
         return subscriptionRepository.save(subscription);
     }
 
-    private Boolean checkValidationOfSubscription(Long productId, Long userId, SubscriptionDto subscriptionDto) {
-        if (Objects.isNull(productId) || Objects.isNull(userId) || Objects.isNull(subscriptionDto)) {
+    private Boolean checkValidationOfSubscription(Long productId, Long userId, SubscriptionInfo subscriptionInfo) {
+        if (Objects.isNull(productId) || Objects.isNull(userId) || Objects.isNull(subscriptionInfo)) {
             return false;
         }
 
@@ -137,8 +144,6 @@ public class SubscriptionService implements ISubscriptionService {
         }
 
         // TODO: implementation
-
-
         return true;
     }
 }

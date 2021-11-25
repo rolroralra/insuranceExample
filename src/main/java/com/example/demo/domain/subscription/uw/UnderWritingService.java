@@ -37,12 +37,12 @@ public class UnderWritingService implements IUnderWritingService {
         UnderWriting underWriting = createAndSaveUnderWriting(subscription);
 
         messageService.send(subscription.getUnderWritingManagerName(), "[신규 보험가입 인가 요청] %s", subscription);
+        messageService.send(subscription.getSubscriptionManagerName(), "[보험가입 인가 요청 처리 중] %s", underWriting);
 
         return underWriting;
     }
 
-    @Override
-    public UnderWriting registerUnderWritingResult(UnderWriting underWriting) {
+    private UnderWriting registerUnderWritingResult(UnderWriting underWriting) {
         underWriting.complete();
 
         UnderWriting modifiedUnderWriting = underWritingRepository.save(underWriting);
@@ -57,13 +57,20 @@ public class UnderWritingService implements IUnderWritingService {
     }
 
     @Override
-    public List<UnderWriting> findAll() {
+    public UnderWriting registerUnderWritingResult(Long underWritingId, Boolean result) {
+        UnderWriting underWriting = underWritingRepository.findById(underWritingId);
+        underWriting.setResult(result);
+        return registerUnderWritingResult(underWriting);
+    }
+
+    @Override
+    public List<UnderWriting> findAllUnderWritings() {
         return underWritingRepository.findAll();
     }
 
     @Override
     public List<UnderWriting> findUnderWritingsByManagerId(Long managerId) {
-        return underWritingRepository.findByPredicate(underWriting -> Objects.equals(underWriting.getUnderWritingManager().getId(), managerId));
+        return underWritingRepository.findByPredicate(underWriting -> Objects.equals(underWriting.getManager().getId(), managerId));
     }
 
     private UnderWriting createAndSaveUnderWriting(Subscription subscription) {

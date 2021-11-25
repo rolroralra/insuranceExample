@@ -22,7 +22,7 @@ class ProductServiceTest {
     @DisplayName("1. 보험상품 전체 목록을 검색할 수 있다.")
     @Test
     public void test_search_all_products() {
-        List<Product> productList = productService.searchAllProducts();
+        List<Product> productList = productService.findAllProducts();
         assertThat(productList).isNotEmpty();
 
         System.out.println(productList);
@@ -32,7 +32,7 @@ class ProductServiceTest {
     @DisplayName("2. 보험상품 검색 조건으로 보험상품 목록을 검색할 수 있다.")
     @Test
     public void test_search_products() {
-        List<Product> productList = productService.searchProducts(product -> true);
+        List<Product> productList = productService.findProducts(product -> true);
         assertThat(productList).isNotEmpty();
 
         System.out.println(productList);
@@ -43,10 +43,12 @@ class ProductServiceTest {
     @ParameterizedTest
     @ValueSource(longs = {1, 2, 3, 4})
     public void test_search_product_by_id(Long productId) {
-        Product product = productService.searchProductById(productId);
+        Product product = productService.findProductById(productId);
         assertThat(product)
                 .isNotNull()
-                .extracting(Product::getId).isEqualTo(productId);
+                .hasFieldOrPropertyWithValue("id", productId)
+                .hasFieldOrProperty("type")
+                .extracting(Product::getType).isInstanceOfAny(ProductType.class);
 
         System.out.println(product);
     }
@@ -61,9 +63,10 @@ class ProductServiceTest {
 
         assertThat(savedProduct)
                 .isNotNull()
+                .isEqualTo(product)
                 .extracting(Product::getId).isNotNull();
 
-        assertThat(productService.searchProductById(savedProduct.getId())).isNotNull();
+        assertThat(productService.findProductById(savedProduct.getId())).isNotNull();
 
         System.out.println(savedProduct);
     }
@@ -73,7 +76,7 @@ class ProductServiceTest {
     @ParameterizedTest
     @ValueSource(longs = {1, 2, 3, 4})
     public void test_modify_product(Long productId) {
-        Product product = productService.searchProductById(productId);
+        Product product = productService.findProductById(productId);
         assertThat(product)
                 .isNotNull()
                 .extracting(Product::getId).isEqualTo(productId);
@@ -85,10 +88,21 @@ class ProductServiceTest {
         assertThat(modifiedProduct)
                 .isNotNull();
 
-        assertThat(productService.searchProductById(productId))
+        assertThat(productService.findProductById(productId))
                 .isNotNull()
                 .isEqualTo(modifiedProduct);
 
         System.out.println(modifiedProduct);
+    }
+
+    @Order(6)
+    @DisplayName("6. 보험상품을 삭제할 수 있다.")
+    @ParameterizedTest
+    @ValueSource(longs = {1, 2, 3, 4})
+    public void test_remove_product(Long productId) {
+        productService.removeProductById(productId);
+
+        Product product = productService.findProductById(productId);
+        assertThat(product).isNull();
     }
 }

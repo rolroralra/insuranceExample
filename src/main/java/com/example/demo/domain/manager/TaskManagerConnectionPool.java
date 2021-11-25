@@ -23,19 +23,19 @@ public class TaskManagerConnectionPool {
     }
 
     public SubscriptionManager allocateSubscriptionManager() {
-        return subscriptionManagerRepository.getAny();
+        return subscriptionManagerRepository.findAny();
     }
 
     public UnderWritingManager allocateUnderWritingManager() {
-        return underWritingManagerRepository.getAny();
+        return underWritingManagerRepository.findAny();
     }
 
     public RewardManager allocateRewardManager() {
-        return rewardManagerRepository.getAny();
+        return rewardManagerRepository.findAny();
     }
 
     public ContractManager allocateContractManager() {
-        return contractManagerRepository.getAny();
+        return contractManagerRepository.findAny();
     }
 
 }

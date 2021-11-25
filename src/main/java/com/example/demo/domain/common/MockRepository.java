@@ -45,17 +45,8 @@ public abstract class MockRepository<T extends CommonEntity> implements Reposito
         return entity;
     }
 
-    public T deleteById(Long entityId) {
-        Iterator<T> iterator = entityList.iterator();
-        while (iterator.hasNext()) {
-            T entity = iterator.next();
-            if (Objects.equals(entity.getId(), entityId)) {
-                iterator.remove();
-                return entity;
-            }
-        }
-
-        return null;
+    public void deleteById(Long entityId) {
+        entityList.removeIf(entity -> Objects.equals(entity.getId(), entityId));
     }
     
     public T modify(T entity) {
@@ -71,7 +62,7 @@ public abstract class MockRepository<T extends CommonEntity> implements Reposito
     }
 
     @Override
-    public T getAny() {
+    public T findAny() {
         List<T> entityList = findAll();
         return entityList.get(new Random().nextInt(entityList.size()));
     }
@@ -94,10 +85,6 @@ public abstract class MockRepository<T extends CommonEntity> implements Reposito
             return null;
         }).findFirst().orElse(null);
     }
-
-//    protected void addNewEntity() {
-//        entityList.add(newEntity());
-//    }
 
     protected Long newEntityId() {
         return (long) entityList.size() + 1;

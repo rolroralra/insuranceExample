@@ -6,11 +6,13 @@ import java.util.function.Predicate;
 public interface Repository<T extends CommonEntity> {
     List<T> findAll();
 
-    List<T> findByPredicate(Predicate<T> searchCondition);
+    List<T> findByPredicate(Predicate<T> predicate);
 
     T findById(Long entityId);
 
     T save(T entity);
 
-    T getAny();
+    void deleteById(Long entityId);
+
+    T findAny();
 }

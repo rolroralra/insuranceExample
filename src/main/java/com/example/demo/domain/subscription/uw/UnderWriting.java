@@ -1,12 +1,9 @@
 package com.example.demo.domain.subscription.uw;
 
 import com.example.demo.domain.common.CommonEntity;
-import com.example.demo.domain.manager.TaskManagerConnectionPool;
 import com.example.demo.domain.manager.uw.UnderWritingManager;
 import com.example.demo.domain.subscription.Subscription;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Objects;
@@ -15,8 +12,9 @@ import java.util.Objects;
 @Setter
 public class UnderWriting extends CommonEntity {
     private Subscription subscription;
-    private UnderWritingState state;
-    private UnderWritingManager underWritingManager;
+    private State state;
+    private UnderWritingManager manager;
+    private Boolean result;
 
     public UnderWriting() {
         this(null, null);
@@ -25,40 +23,54 @@ public class UnderWriting extends CommonEntity {
     public UnderWriting(Subscription subscription) {
         this(subscription, null);
     }
-    public UnderWriting(Subscription subscription, UnderWritingState state) {
+
+    public UnderWriting(Subscription subscription, State state) {
         this.subscription = subscription;
-        this.state = UnderWritingState.getDefaultOr(state);
+        this.state = State.getDefaultOr(state);
+        this.result = false;
     }
 
-    public String getUnderWritingManagerName() {
-        return underWritingManager.getName();
-    }
-
-    public void allocateManager(UnderWritingManager underWritingManager) {
-        setUnderWritingManager(underWritingManager);
-        setState(UnderWritingState.PROGRESS);
-    }
-
-    public enum UnderWritingState {
+    public enum State {
         NOT_READY,
         PROGRESS,
         COMPLETED,
         INVALID,
         FAILED;
 
-        private static final UnderWritingState DEFAULT_VALUE = NOT_READY;
+        private static final State DEFAULT_VALUE = NOT_READY;
 
-        public static UnderWritingState getDefault() {
+        public static State getDefault() {
             return DEFAULT_VALUE;
         }
 
-        public static UnderWritingState getDefaultOr(UnderWritingState state) {
+        public static State getDefaultOr(State state) {
             return Objects.nonNull(state) ? state : getDefault();
         }
     }
 
+    public String getUnderWritingManagerName() {
+        return manager.getName();
+    }
+
+    public void allocateManager(UnderWritingManager underWritingManager) {
+        setManager(underWritingManager);
+        setState(State.PROGRESS);
+    }
+
+    public Boolean isNotReady() {
+        return state == State.NOT_READY;
+    }
+
+    public Boolean isProgress() {
+        return state == State.PROGRESS;
+    }
+
+    public Boolean isCompleted() {
+        return state == State.COMPLETED;
+    }
+
     public void complete() {
-        setState(UnderWritingState.COMPLETED);
+        setState(State.COMPLETED);
         this.subscription.completeUW();
     }
 
@@ -68,7 +80,7 @@ public class UnderWriting extends CommonEntity {
                 "id=" + getId() +
                 ", subscription=" + subscription +
                 ", state=" + state +
-                ", underWritingManager=" + underWritingManager +
+                ", underWritingManager=" + manager +
                 '}';
     }
 }
