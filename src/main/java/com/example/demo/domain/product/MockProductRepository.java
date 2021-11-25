@@ -1,9 +1,6 @@
-package com.example.demo.domain.product.mock;
+package com.example.demo.domain.product;
 
 import com.example.demo.domain.common.MockRepository;
-import com.example.demo.domain.product.Product;
-import com.example.demo.domain.product.ProductRepository;
-import com.example.demo.domain.product.ProductType;
 
 public class MockProductRepository extends MockRepository<Product> implements ProductRepository {
     private MockProductRepository() {

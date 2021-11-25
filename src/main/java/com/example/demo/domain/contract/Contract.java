@@ -51,6 +51,30 @@ public class Contract extends CommonEntity {
         }
     }
 
+    public Long getProductId() {
+        return product.getId();
+    }
+
+    public String getProductName() {
+        return product.getName();
+    }
+
+    public Long getUserId () {
+        return user.getId();
+    }
+
+    public String getUserName() {
+        return user.getName();
+    }
+
+    public Long getManagerId() {
+        return manager.getId();
+    }
+
+    public String getManagerName() {
+        return manager.getName();
+    }
+
     public void allocate(ContractManager manager) {
         setManager(manager);
         setState(State.PROGRESS);

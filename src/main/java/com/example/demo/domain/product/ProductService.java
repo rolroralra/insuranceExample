@@ -1,11 +1,12 @@
 package com.example.demo.domain.product;
 
-import com.example.demo.domain.product.mock.MockProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.function.Predicate;
 
+@Service
 @RequiredArgsConstructor
 public class ProductService implements IProductService {
     private final ProductRepository productRepository;

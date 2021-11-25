@@ -57,16 +57,26 @@ public class Subscription extends CommonEntity {
         this.state = State.getDefaultOr(state);
     }
 
+    public Long getProductId() {return product.getId(); }
+
+    public String getProductName() { return product.getName(); }
+
+    public Long getUserId() { return user.getId(); }
+
+    public String getUserName() {
+        return user.getName();
+    }
+
+    public Long getSubscriptionManagerId() { return manager.getId(); }
+
     public String getSubscriptionManagerName() {
         return manager.getName();
     }
 
+    public Long getUnderWritingManagerId() { return underWriting.getManager().getId(); }
+
     public String getUnderWritingManagerName() {
         return underWriting.getManager().getName();
-    }
-
-    public String getUserName() {
-        return user.getName();
     }
 
     public void allocateManager(SubscriptionManager subscriptionManager) {

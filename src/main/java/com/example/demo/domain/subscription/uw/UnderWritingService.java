@@ -1,29 +1,35 @@
 package com.example.demo.domain.subscription.uw;
 
+import com.example.demo.domain.contract.Contract;
 import com.example.demo.domain.manager.TaskManagerConnectionPool;
 import com.example.demo.domain.manager.uw.UnderWritingManager;
 import com.example.demo.domain.message.MessageService;
-import com.example.demo.domain.message.mock.MockMessageService;
+import com.example.demo.domain.message.MockMessageService;
+import com.example.demo.domain.subscription.MockSubscriptionRepository;
 import com.example.demo.domain.subscription.Subscription;
 import com.example.demo.domain.subscription.SubscriptionRepository;
-import com.example.demo.domain.subscription.mock.MockSubscriptionRepository;
-import com.example.demo.domain.subscription.mock.MockUnderWritingRepository;
 import com.example.demo.exception.DuplicatedUnderWritingException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
+@Service
+@RequiredArgsConstructor
 public class UnderWritingService implements IUnderWritingService {
-    private final TaskManagerConnectionPool taskManagerConnectionPool;
-    private final MessageService messageService;
     private final UnderWritingRepository underWritingRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final TaskManagerConnectionPool taskManagerConnectionPool;
+    private final MessageService messageService;
 
     public UnderWritingService() {
-        taskManagerConnectionPool = new TaskManagerConnectionPool();
-        messageService = new MockMessageService();
-        underWritingRepository = MockUnderWritingRepository.getInstance();
-        subscriptionRepository = MockSubscriptionRepository.getInstance();
+        this(
+                MockUnderWritingRepository.getInstance(),
+                MockSubscriptionRepository.getInstance(),
+                new TaskManagerConnectionPool(),
+                new MockMessageService()
+        );
     }
 
     @Override
@@ -53,7 +59,7 @@ public class UnderWritingService implements IUnderWritingService {
         Subscription modifiedSubscription = underWritingResult.getSubscription();
         subscriptionRepository.save(modifiedSubscription);
 
-        messageService.send(underWritingResult.getUnderWritingManagerName(), "[보험가입 인가 요청 처리 결과 등록 완료] %s", underWritingResult);
+        messageService.send(underWritingResult.getManagerName(), "[보험가입 인가 요청 처리 결과 등록 완료] %s", underWritingResult);
         messageService.send(modifiedSubscription.getSubscriptionManagerName(), "[보험가입 인가 요청 처리 완료] %s", modifiedSubscription);
 
         return underWritingResult;
@@ -62,6 +68,11 @@ public class UnderWritingService implements IUnderWritingService {
     @Override
     public List<UnderWriting> findAllUnderWritings() {
         return underWritingRepository.findAll();
+    }
+
+    @Override
+    public UnderWriting findUnderWritingById(Long underWritingId) {
+        return underWritingRepository.findById(underWritingId);
     }
 
     @Override

@@ -6,13 +6,14 @@ import com.example.demo.domain.contract.IContractService;
 import com.example.demo.domain.manager.TaskManagerConnectionPool;
 import com.example.demo.domain.manager.reward.RewardManager;
 import com.example.demo.domain.message.MessageService;
-import com.example.demo.domain.message.mock.MockMessageService;
-import com.example.demo.domain.reward.mock.MockRewardRepository;
+import com.example.demo.domain.message.MockMessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
+@Service
 @RequiredArgsConstructor
 public class RewardService implements IRewardService {
     private final RewardRepository rewardRepository;

@@ -11,14 +11,12 @@ import java.util.Map;
 public class RewardInfo {
     private RewardType type;
     private Map<String, String> fileMap;
-    private Long rewardAmount;
     private String description;
 
     private RewardInfo() {
         this(
                 RewardType.getDefault(),
                 new HashMap<>(),
-                0L,
                 ""
         );
     }
@@ -37,11 +35,6 @@ public class RewardInfo {
 
         public Builder addFile(String key, String file) {
             this.instance.fileMap.put(key, file);
-            return this;
-        }
-
-        public Builder rewardAmount(Long rewardAmount) {
-            this.instance.rewardAmount = rewardAmount;
             return this;
         }
 
@@ -64,7 +57,6 @@ public class RewardInfo {
         return "RewardInfo{" +
                 "type=" + type +
                 ", fileMap=" + fileMap +
-                ", rewardAmount=" + rewardAmount +
                 ", description='" + description + '\'' +
                 '}';
     }

@@ -1,8 +1,8 @@
 package com.example.demo.domain.subscription.uw;
 
+import com.example.demo.domain.subscription.MockSubscriptionRepository;
 import com.example.demo.domain.subscription.Subscription;
 import com.example.demo.domain.subscription.SubscriptionRepository;
-import com.example.demo.domain.subscription.mock.MockSubscriptionRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

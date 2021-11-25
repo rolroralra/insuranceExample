@@ -1,8 +1,6 @@
-package com.example.demo.domain.reward.mock;
+package com.example.demo.domain.reward;
 
 import com.example.demo.domain.common.MockRepository;
-import com.example.demo.domain.reward.Reward;
-import com.example.demo.domain.reward.RewardRepository;
 
 public class MockRewardRepository extends MockRepository<Reward> implements RewardRepository {
     private MockRewardRepository() {

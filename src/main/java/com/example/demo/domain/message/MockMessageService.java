@@ -1,6 +1,4 @@
-package com.example.demo.domain.message.mock;
-
-import com.example.demo.domain.message.MessageService;
+package com.example.demo.domain.message;
 
 public class MockMessageService implements MessageService {
     private static final String BASE_FORMAT = "%s님, %s%n";

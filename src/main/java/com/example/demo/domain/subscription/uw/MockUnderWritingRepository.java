@@ -1,10 +1,9 @@
-package com.example.demo.domain.subscription.mock;
+package com.example.demo.domain.subscription.uw;
 
 import com.example.demo.domain.common.MockRepository;
+import com.example.demo.domain.subscription.MockSubscriptionRepository;
 import com.example.demo.domain.subscription.Subscription;
 import com.example.demo.domain.subscription.SubscriptionRepository;
-import com.example.demo.domain.subscription.uw.UnderWriting;
-import com.example.demo.domain.subscription.uw.UnderWritingRepository;
 
 public class MockUnderWritingRepository extends MockRepository<UnderWriting> implements UnderWritingRepository {
     private static final SubscriptionRepository subscriptionRepository = MockSubscriptionRepository.getInstance();

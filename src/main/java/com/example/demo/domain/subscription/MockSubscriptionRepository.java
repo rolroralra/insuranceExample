@@ -1,16 +1,13 @@
-package com.example.demo.domain.subscription.mock;
+package com.example.demo.domain.subscription;
 
 import com.example.demo.domain.common.MockRepository;
 import com.example.demo.domain.manager.TaskManagerConnectionPool;
+import com.example.demo.domain.product.MockProductRepository;
 import com.example.demo.domain.product.Product;
 import com.example.demo.domain.product.ProductRepository;
-import com.example.demo.domain.product.mock.MockProductRepository;
-import com.example.demo.domain.subscription.Subscription;
-import com.example.demo.domain.subscription.SubscriptionInfo;
-import com.example.demo.domain.subscription.SubscriptionRepository;
+import com.example.demo.domain.user.MockUserRepository;
 import com.example.demo.domain.user.User;
 import com.example.demo.domain.user.UserRepository;
-import com.example.demo.domain.user.mock.MockUserRepository;
 
 public class MockSubscriptionRepository extends MockRepository<Subscription> implements SubscriptionRepository {
     private static final UserRepository USER_REPOSITORY = MockUserRepository.getInstance();

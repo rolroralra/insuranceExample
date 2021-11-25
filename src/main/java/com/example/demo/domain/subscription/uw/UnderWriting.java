@@ -48,7 +48,9 @@ public class UnderWriting extends CommonEntity {
         }
     }
 
-    public String getUnderWritingManagerName() {
+    public Long getManagerId() { return manager.getId(); }
+
+    public String getManagerName() {
         return manager.getName();
     }
 

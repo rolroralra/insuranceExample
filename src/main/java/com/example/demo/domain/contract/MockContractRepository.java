@@ -1,8 +1,6 @@
-package com.example.demo.domain.contract.mock;
+package com.example.demo.domain.contract;
 
 import com.example.demo.domain.common.MockRepository;
-import com.example.demo.domain.contract.Contract;
-import com.example.demo.domain.contract.ContractRepository;
 
 public class MockContractRepository extends MockRepository<Contract> implements ContractRepository {
 

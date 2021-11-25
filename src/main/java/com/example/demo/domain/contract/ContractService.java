@@ -1,19 +1,20 @@
 package com.example.demo.domain.contract;
 
-import com.example.demo.domain.contract.mock.MockContractRepository;
 import com.example.demo.domain.manager.TaskManagerConnectionPool;
 import com.example.demo.domain.manager.contract.ContractManager;
 import com.example.demo.domain.message.MessageService;
-import com.example.demo.domain.message.mock.MockMessageService;
+import com.example.demo.domain.message.MockMessageService;
+import com.example.demo.domain.subscription.MockSubscriptionRepository;
 import com.example.demo.domain.subscription.Subscription;
 import com.example.demo.domain.subscription.SubscriptionRepository;
-import com.example.demo.domain.subscription.mock.MockSubscriptionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+@Service
 @RequiredArgsConstructor
 public class ContractService implements IContractService{
     private final ContractRepository contractRepository;

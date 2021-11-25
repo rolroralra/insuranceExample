@@ -1,6 +1,7 @@
 package com.example.demo.domain.message.mock;
 
 import com.example.demo.domain.message.MessageService;
+import com.example.demo.domain.message.MockMessageService;
 import org.junit.jupiter.api.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

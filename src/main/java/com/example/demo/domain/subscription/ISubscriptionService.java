@@ -14,6 +14,8 @@ public interface ISubscriptionService {
 
     Subscription findSubscriptionById(Long subscriptionId);
 
+    List<Subscription> findSubscriptionsByUserId(Long userId);
+
     List<Subscription> findSubscriptionsByManagerId(Long managerId);
 
     Subscription subscribeInsurance(Long productId, Long userId, SubscriptionInfo subscriptionInfo);

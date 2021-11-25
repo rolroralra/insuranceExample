@@ -1,10 +1,12 @@
 package com.example.demo.domain.user;
 
 import com.example.demo.domain.common.CommonEntity;
+import com.example.demo.domain.product.ProductDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Objects;
 
@@ -14,6 +16,13 @@ import java.util.Objects;
 @NoArgsConstructor
 public class User extends CommonEntity {
     private String name;
+
+    public User(UserDto userDto) {
+        BeanUtils.copyProperties(userDto, this);
+    }
+
+    public User(ProductDto userDto) {
+    }
 
     @Override
     public boolean equals(Object o) {

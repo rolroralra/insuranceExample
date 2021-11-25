@@ -1,8 +1,6 @@
-package com.example.demo.domain.user.mock;
+package com.example.demo.domain.user;
 
 import com.example.demo.domain.common.MockRepository;
-import com.example.demo.domain.user.User;
-import com.example.demo.domain.user.UserRepository;
 
 public class MockUserRepository extends MockRepository<User> implements UserRepository {
     private MockUserRepository() {

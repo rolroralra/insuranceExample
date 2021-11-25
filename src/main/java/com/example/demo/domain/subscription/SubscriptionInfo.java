@@ -1,16 +1,13 @@
 package com.example.demo.domain.subscription;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 public class SubscriptionInfo {
     private LocalDate startDate;
     private LocalDate expireDate;

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.BeanUtils;
 
 import java.util.Objects;
 
@@ -18,6 +19,14 @@ public class Product extends CommonEntity {
 
     public Product(String name) {
         this(name, ProductType.getDefault());
+    }
+
+    public Product(ProductDto productDto) {
+        BeanUtils.copyProperties(productDto, this);
+    }
+
+    public static Product parse(ProductDto productDto) {
+        return new Product(productDto);
     }
 
     @Override

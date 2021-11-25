@@ -6,25 +6,26 @@ import com.example.demo.domain.contract.IContractService;
 import com.example.demo.domain.manager.TaskManagerConnectionPool;
 import com.example.demo.domain.manager.subscription.SubscriptionManager;
 import com.example.demo.domain.message.MessageService;
-import com.example.demo.domain.message.mock.MockMessageService;
+import com.example.demo.domain.message.MockMessageService;
+import com.example.demo.domain.product.MockProductRepository;
 import com.example.demo.domain.product.Product;
 import com.example.demo.domain.product.ProductRepository;
-import com.example.demo.domain.product.mock.MockProductRepository;
-import com.example.demo.domain.subscription.mock.MockSubscriptionRepository;
 import com.example.demo.domain.subscription.uw.IUnderWritingService;
 import com.example.demo.domain.subscription.uw.UnderWriting;
 import com.example.demo.domain.subscription.uw.UnderWritingService;
+import com.example.demo.domain.user.MockUserRepository;
 import com.example.demo.domain.user.User;
 import com.example.demo.domain.user.UserRepository;
-import com.example.demo.domain.user.mock.MockUserRepository;
 import com.example.demo.exception.InvalidRequestException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@Service
 @RequiredArgsConstructor
 public class SubscriptionService implements ISubscriptionService {
     private final IContractService contractService;
@@ -63,6 +64,11 @@ public class SubscriptionService implements ISubscriptionService {
     @Override
     public Subscription findSubscriptionById(Long subscriptionId) {
         return subscriptionRepository.findById(subscriptionId);
+    }
+
+    @Override
+    public List<Subscription> findSubscriptionsByUserId(Long userId) {
+        return subscriptionRepository.findByPredicate(subscription -> Objects.equals(userId, subscription.getUserId()));
     }
 
     @Override

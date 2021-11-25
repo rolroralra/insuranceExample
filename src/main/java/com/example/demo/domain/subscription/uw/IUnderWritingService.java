@@ -1,5 +1,7 @@
 package com.example.demo.domain.subscription.uw;
 
+import com.example.demo.domain.contract.Contract;
+
 import java.util.List;
 
 public interface IUnderWritingService {
@@ -8,6 +10,8 @@ public interface IUnderWritingService {
     UnderWriting registerUnderWritingResult(Long underWritingId, Boolean result);
 
     List<UnderWriting> findAllUnderWritings();
+
+    UnderWriting findUnderWritingById(Long underWritingId);
 
     List<UnderWriting> findUnderWritingsByManagerId(Long managerId);
 }

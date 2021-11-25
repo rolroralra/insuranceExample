@@ -177,7 +177,6 @@ class RewardServiceTest {
 
         RewardInfo rewardInfo = RewardInfo.builder()
                 .type(RewardType.getDefaultOr(null))
-                .rewardAmount(25000L)
                 .addFile("MEDICAL_TREATMENT", "진료명세서...")
                 .addFile("MEDICAL_DETAIL", "진료세부내역서...")
                 .description("보상청구 요청 정상 처리하였습니다.")
