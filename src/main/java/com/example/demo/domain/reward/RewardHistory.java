@@ -4,7 +4,9 @@ import com.example.demo.domain.common.CommonEntity;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -23,11 +25,14 @@ public class RewardHistory extends CommonEntity {
         rewardMap.put(reward.getId(), reward);
     }
 
-    public void deleteReward(Long rewardId) {
-        rewardMap.remove(rewardId);
+    public int totalRewardHistoryCount() {
+        return getAllRewards().size();
     }
 
-    public int totalRewardHistoryCount() {
-        return rewardMap.keySet().size();
+    @Override
+    public String toString() {
+        return "RewardHistory{" +
+                "rewardMap=" + rewardMap +
+                '}';
     }
 }

@@ -73,6 +73,7 @@ public class Contract extends CommonEntity {
                 ", manager=" + manager +
                 ", contractInfo=" + contractInfo +
                 ", state=" + state +
+                ", rewardHistory=" + rewardHistory +
                 '}';
     }
 }

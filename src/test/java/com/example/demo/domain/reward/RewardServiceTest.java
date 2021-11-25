@@ -3,6 +3,7 @@ package com.example.demo.domain.reward;
 import com.example.demo.domain.contract.Contract;
 import com.example.demo.domain.contract.ContractService;
 import com.example.demo.domain.contract.IContractService;
+import com.example.demo.domain.manager.reward.RewardManager;
 import com.example.demo.domain.product.Product;
 import com.example.demo.domain.product.ProductService;
 import com.example.demo.domain.subscription.ISubscriptionService;
@@ -17,19 +18,12 @@ import com.example.demo.domain.user.User;
 import com.example.demo.domain.user.UserService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.common.ArgumentUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RewardServiceTest {
@@ -54,41 +48,13 @@ class RewardServiceTest {
     @DisplayName("1. 보험가입자가 특정 계약에 대해 보상청구 요청할 수 있다.")
     @Test
     void test_request_reward() {
-        Contract newContract = createContract();
-        User user = newContract.getUser();
-        System.out.println();
-
-        RewardInfo rewardInfo = RewardInfo.builder()
-                .rewardAmount(25000L)
-                .addFile("MEDICAL_TREATMENT", "진료명세서...")
-                .addFile("MEDICAL_DETAIL", "진료세부내역서...")
-                .build();
-
-        Contract contract = contractService.findContractsByUserId(user.getId()).stream().findAny().orElse(null);
-        assertThat(contract)
-                .isNotNull()
-                .extracting(Contract::getId).isNotNull();
-
-        Reward reward = rewardService.requestReward(contract.getId(), rewardInfo);
-
+        Reward reward = createReward();
         assertThat(reward)
                 .isNotNull()
                 .hasFieldOrProperty("id")
                 .hasFieldOrProperty("manager")
-                .hasFieldOrPropertyWithValue("state", Reward.State.PROGRESS)
-                .hasFieldOrPropertyWithValue("contract", contract)
-                .hasFieldOrPropertyWithValue("rewardInfo", rewardInfo);
+                .hasFieldOrPropertyWithValue("state", Reward.State.PROGRESS);
 
-        assertThat(reward.getId()).isNotNull();
-        assertThat(reward.getManager()).isNotNull();
-
-        Contract searchContractResult = contractService.findContractById(reward.getContract().getId());
-
-        assertThat(searchContractResult)
-                .isNotNull();
-
-        assertThat(searchContractResult.totalRewardHistoryCount())
-                .isEqualTo(0);
     }
 
     @Order(2)
@@ -96,12 +62,12 @@ class RewardServiceTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void test_register_reward_result(Boolean rewardResultValue) {
-        test_request_reward();
-        System.out.println();
-
-        Reward reward = rewardService.findAllRewards().stream().findAny().orElse(null);
-
-        assertThat(reward).isNotNull();
+        Reward reward = createReward();
+        assertThat(reward)
+                .isNotNull()
+                .hasFieldOrProperty("id")
+                .hasFieldOrProperty("manager")
+                .hasFieldOrPropertyWithValue("state", Reward.State.PROGRESS);
 
         RewardResult rewardResult = RewardResult.builder()
                 .rewardAmount(25000L)
@@ -111,6 +77,46 @@ class RewardServiceTest {
 
         Reward resultReward = rewardService.registerRewardResult(reward.getId(), rewardResult);
         assertThat(resultReward).isNotNull();
+
+        Contract searchContractResult = contractService.findContractById(resultReward.getContract().getId());
+
+        assertThat(searchContractResult)
+                .isNotNull();
+
+        assertThat(searchContractResult.getRewardHistory().getRewardMap())
+                .containsEntry(resultReward.getId(), resultReward);
+    }
+
+    @Order(3)
+    @DisplayName("3. 보상청구 담당자는 managerId를 통해 보상청구 목록을 검색할 수 있다.")
+    @Test
+    void findRewardsByManagerId() {
+        Reward reward = createReward();
+
+        RewardManager rewardManager = reward.getManager();
+
+        List<Reward> rewardList = rewardService.findRewardsByManagerId(rewardManager.getId());
+
+        assertThat(rewardList)
+                .isNotNull()
+                .isNotEmpty()
+                .contains(reward);
+    }
+
+    @Order(4)
+    @DisplayName("4. 보험 가입자는 userId를 통해 보상청구 목록을 검색할 수 있다")
+    @Test
+    void findRewardsByUserId() {
+        Reward reward = createReward();
+
+        User user = reward.getUser();
+
+        List<Reward> rewardList = rewardService.findRewardsByUserId(user.getId());
+
+        assertThat(rewardList)
+                .isNotNull()
+                .isNotEmpty()
+                .contains(reward);
     }
 
     private User getAnyUser() {
@@ -123,9 +129,7 @@ class RewardServiceTest {
         return productList.get(new Random().nextInt(productList.size()));
     }
 
-    private Contract createContract(User user) {
-        Product product = getAnyProduct();
-
+    private Contract createContract(User user, Product product) {
         SubscriptionInfo subscriptionInfo = SubscriptionInfo.builder()
                 .startDate("2021-11-25")
                 .expireDate("2041-11-25")
@@ -161,9 +165,54 @@ class RewardServiceTest {
 
         return contract;
     }
+
     private Contract createContract() {
-       return createContract(getAnyUser());
+       return createContract(getAnyUser(), getAnyProduct());
     }
+
+    private Reward createReward() {
+        Contract newContract = createContract();
+        User user = newContract.getUser();
+        System.out.println();
+
+        RewardInfo rewardInfo = RewardInfo.builder()
+                .type(RewardType.getDefaultOr(null))
+                .rewardAmount(25000L)
+                .addFile("MEDICAL_TREATMENT", "진료명세서...")
+                .addFile("MEDICAL_DETAIL", "진료세부내역서...")
+                .description("보상청구 요청 정상 처리하였습니다.")
+                .build();
+
+        Contract contract = contractService.findContractsByUserId(user.getId()).stream().findAny().orElse(null);
+        assertThat(contract)
+                .isNotNull()
+                .extracting(Contract::getId).isNotNull();
+
+        Reward reward = rewardService.requestReward(contract.getId(), rewardInfo);
+
+        assertThat(reward)
+                .isNotNull()
+                .hasFieldOrProperty("id")
+                .hasFieldOrProperty("manager")
+                .hasFieldOrPropertyWithValue("state", Reward.State.PROGRESS)
+                .hasFieldOrPropertyWithValue("contract", contract)
+                .hasFieldOrPropertyWithValue("rewardInfo", rewardInfo);
+
+        assertThat(reward.getId()).isNotNull();
+        assertThat(reward.getManager()).isNotNull();
+
+        Contract searchContractResult = contractService.findContractById(reward.getContract().getId());
+
+        System.out.println(searchContractResult);
+        assertThat(searchContractResult)
+                .isNotNull();
+
+        assertThat(searchContractResult.totalRewardHistoryCount())
+                .isGreaterThanOrEqualTo(0);
+
+        return reward;
+    }
+
 
 
 }

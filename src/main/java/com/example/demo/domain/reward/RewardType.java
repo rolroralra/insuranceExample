@@ -1,7 +1,5 @@
 package com.example.demo.domain.reward;
 
-import java.util.Objects;
-
 public enum RewardType {
     DEFAULT_TYPE;
 

@@ -1,15 +1,12 @@
 package com.example.demo.domain.reward;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-@Setter
 @AllArgsConstructor
 public class RewardInfo {
     private RewardType type;
@@ -34,7 +31,7 @@ public class RewardInfo {
         }
 
         public Builder type(RewardType type) {
-            this.instance.setType(type);
+            this.instance.type = type;
             return this;
         }
 
@@ -44,12 +41,12 @@ public class RewardInfo {
         }
 
         public Builder rewardAmount(Long rewardAmount) {
-            this.instance.setRewardAmount(rewardAmount);
+            this.instance.rewardAmount = rewardAmount;
             return this;
         }
 
         public Builder description(String description) {
-            this.instance.setDescription(description);
+            this.instance.description = description;
             return this;
         }
 

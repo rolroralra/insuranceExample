@@ -3,7 +3,6 @@ package com.example.demo.domain.reward;
 import com.example.demo.domain.common.CommonEntity;
 import com.example.demo.domain.contract.Contract;
 import com.example.demo.domain.manager.reward.RewardManager;
-import com.example.demo.domain.subscription.Subscription;
 import com.example.demo.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -77,7 +76,6 @@ public class Reward extends CommonEntity {
         return "Reward{" +
                 "id=" + getId() +
                 ", rewardInfo=" + rewardInfo +
-                ", contract=" + contract +
                 ", user=" + user +
                 ", manager=" + manager +
                 ", state=" + state +
