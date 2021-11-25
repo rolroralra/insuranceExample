@@ -1,12 +1,9 @@
 package com.example.demo.domain.contract;
 
 import com.example.demo.domain.manager.contract.ContractManager;
-import com.example.demo.domain.manager.subscription.SubscriptionManager;
-import com.example.demo.domain.manager.uw.UnderWritingManager;
 import com.example.demo.domain.product.IProductService;
 import com.example.demo.domain.product.Product;
 import com.example.demo.domain.product.ProductService;
-import com.example.demo.domain.product.productSearchCondition;
 import com.example.demo.domain.subscription.ISubscriptionService;
 import com.example.demo.domain.subscription.Subscription;
 import com.example.demo.domain.subscription.SubscriptionInfo;
@@ -21,14 +18,11 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ContractServiceTest {
@@ -63,6 +57,8 @@ class ContractServiceTest {
     @ValueSource(ints = {0, 1, 2, 5})
     void test_find_contracts_by_userId(int contractCount) {
         User user = getAnyUser();
+        int expectedContractCount = contractCount + contractService.findContractsByUserId(user.getId()).size();
+
         for (int i = 0; i < contractCount; i++) {
             createContract(user, getAnyProduct());
         }
@@ -71,7 +67,7 @@ class ContractServiceTest {
 
         assertThat(contractList)
                 .isNotNull()
-                .hasSize(contractCount)
+                .hasSize(expectedContractCount)
                 .hasOnlyElementsOfType(Contract.class)
                 .doesNotContainNull();
     }
@@ -127,13 +123,12 @@ class ContractServiceTest {
     }
 
     private Product getAnyProduct() {
-        List<Product> productList = productService.findProducts(new productSearchCondition());
+        List<Product> productList = productService.findAllProducts();
         return productList.get(new Random().nextInt(productList.size()));
     }
 
     private User getAnyUser() {
-        List<User> userList = userService.findUsersByPredicate(user -> true);
-
+        List<User> userList = userService.findAllUsers();
         return userList.get(new Random().nextInt(userList.size()));
     }
 
@@ -149,12 +144,16 @@ class ContractServiceTest {
                 .build();
 
         Subscription subscription = subscriptionService.subscribeInsurance(product.getId(), user.getId(), subscriptionInfo);
+        System.out.println();
 
         UnderWriting underWriting = subscriptionService.requestUnderWriting(subscription.getId());
+        System.out.println();
 
         underWritingService.registerUnderWritingResult(underWriting.getId(), true);
+        System.out.println();
 
         Contract contract = subscriptionService.registerSubscriptionResult(subscription.getId());
+        System.out.println();
 
         assertThat(contract)
                 .isNotNull()

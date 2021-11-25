@@ -32,7 +32,7 @@ class UnderWritingServiceTest {
 
         assertThat(underWriting.getSubscription())
                 .isNotNull()
-                .hasFieldOrPropertyWithValue("state", Subscription.SubscriptionState.PROGRESS_UW);
+                .hasFieldOrPropertyWithValue("state", Subscription.State.PROGRESS_UW);
     }
 
     @Order(2)
@@ -41,9 +41,11 @@ class UnderWritingServiceTest {
     @ValueSource(booleans = {true, false})
     void registerUnderWritingResult(Boolean underWritingResult) {
         test_request_under_writing();
+        System.out.println();
 
         UnderWriting underWriting = SUBSCRIPTION_REPOSITORY.findByPredicate(Subscription::isProgressUW).stream().map(Subscription::getUnderWriting).findAny().get();
         UnderWriting result = underWritingService.registerUnderWritingResult(underWriting.getId(), underWritingResult);
+        System.out.println();
 
         assertThat(result)
                 .isNotNull()
@@ -52,6 +54,6 @@ class UnderWritingServiceTest {
 
         assertThat(result.getSubscription())
                 .isNotNull()
-                .hasFieldOrPropertyWithValue("state", Subscription.SubscriptionState.COMPLETED_UW);
+                .hasFieldOrPropertyWithValue("state", Subscription.State.COMPLETED_UW);
     }
 }

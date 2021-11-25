@@ -3,6 +3,8 @@ package com.example.demo.domain.contract;
 import com.example.demo.domain.contract.mock.MockContractRepository;
 import com.example.demo.domain.manager.TaskManagerConnectionPool;
 import com.example.demo.domain.manager.contract.ContractManager;
+import com.example.demo.domain.message.MessageService;
+import com.example.demo.domain.message.mock.MockMessageService;
 import com.example.demo.domain.subscription.Subscription;
 import com.example.demo.domain.subscription.SubscriptionRepository;
 import com.example.demo.domain.subscription.mock.MockSubscriptionRepository;
@@ -15,13 +17,17 @@ import java.util.function.Predicate;
 @RequiredArgsConstructor
 public class ContractService implements IContractService{
     private final ContractRepository contractRepository;
+
     private final SubscriptionRepository subscriptionRepository;
+
+    private final MessageService messageService;
     private final TaskManagerConnectionPool taskManagerConnectionPool;
 
     public ContractService() {
         this(
                 MockContractRepository.getInstance(),
                 MockSubscriptionRepository.getInstance(),
+                new MockMessageService(),
                 new TaskManagerConnectionPool()
         );
     }

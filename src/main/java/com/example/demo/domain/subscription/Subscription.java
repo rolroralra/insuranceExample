@@ -6,7 +6,8 @@ import com.example.demo.domain.manager.subscription.SubscriptionManager;
 import com.example.demo.domain.product.Product;
 import com.example.demo.domain.subscription.uw.UnderWriting;
 import com.example.demo.domain.user.User;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
@@ -15,13 +16,13 @@ import java.util.Objects;
 public class Subscription extends CommonEntity {
     private Product product;
     private User user;
-    private SubscriptionInfo subscriptionInfo;
     private SubscriptionManager manager;
+    private SubscriptionInfo subscriptionInfo;
     private UnderWriting underWriting;
-    private SubscriptionState state;
     private Contract contract;
+    private State state;
 
-    public enum SubscriptionState {
+    public enum State {
         NOT_READY,
         PROGRESS,
         PROGRESS_UW,
@@ -30,13 +31,13 @@ public class Subscription extends CommonEntity {
         INVALID,
         FAILED;
 
-        private static final SubscriptionState DEFAULT_VALUE = NOT_READY;
+        private static final State DEFAULT_VALUE = NOT_READY;
 
-        public static SubscriptionState getDefault() {
+        public static State getDefault() {
             return DEFAULT_VALUE;
         }
 
-        public static SubscriptionState getDefaultOr(SubscriptionState state) {
+        public static State getDefaultOr(State state) {
             return Objects.nonNull(state) ? state : getDefault();
         }
     }
@@ -49,11 +50,11 @@ public class Subscription extends CommonEntity {
         this(product, user, subscriptionInfo, null);
     }
 
-    public Subscription(Product product, User user, SubscriptionInfo subscriptionInfo, SubscriptionState state) {
+    public Subscription(Product product, User user, SubscriptionInfo subscriptionInfo, State state) {
         this.product = product;
         this.user = user;
         this.subscriptionInfo = subscriptionInfo;
-        this.state = SubscriptionState.getDefaultOr(state);
+        this.state = State.getDefaultOr(state);
     }
 
     public String getSubscriptionManagerName() {
@@ -70,49 +71,49 @@ public class Subscription extends CommonEntity {
 
     public void allocateManager(SubscriptionManager subscriptionManager) {
         setManager(subscriptionManager);
-        setState(SubscriptionState.PROGRESS);
+        setState(State.PROGRESS);
     }
 
     public void allocateUnderWriting(UnderWriting underWriting) {
         setUnderWriting(underWriting);
-        setState(SubscriptionState.PROGRESS_UW);
+        setState(State.PROGRESS_UW);
     }
 
     public void progressUW() {
-        if (state == SubscriptionState.PROGRESS && underWriting.isProgress()) {
-            setState(Subscription.SubscriptionState.PROGRESS_UW);
+        if (state == State.PROGRESS && underWriting.isProgress()) {
+            setState(State.PROGRESS_UW);
         }
     }
 
     public void complete() {
-        if (state == SubscriptionState.COMPLETED_UW) {
-            setState(SubscriptionState.COMPLETED);
+        if (state == State.COMPLETED_UW) {
+            setState(State.COMPLETED);
         }
     }
 
     public void completeUW() {
-        if (state == SubscriptionState.PROGRESS_UW) {
-            setState(SubscriptionState.COMPLETED_UW);
+        if (state == State.PROGRESS_UW) {
+            setState(State.COMPLETED_UW);
         }
     }
 
     public Boolean isNotReady() {
-        return SubscriptionState.NOT_READY == state;
+        return State.NOT_READY == state;
     }
 
     public Boolean isProgress() {
-        return SubscriptionState.PROGRESS == state;
+        return State.PROGRESS == state;
     }
 
     public Boolean isProgressUW() {
-        return SubscriptionState.PROGRESS_UW == state;
+        return State.PROGRESS_UW == state;
     }
 
     public Boolean isCompletedUW() {
-        return SubscriptionState.COMPLETED_UW == state;
+        return State.COMPLETED_UW == state;
     }
 
-    public Boolean isCompleted() { return SubscriptionState.COMPLETED == state; }
+    public Boolean isCompleted() { return State.COMPLETED == state; }
 
     public Boolean isValid() {
         if (Objects.isNull(underWriting) || !isCompleted()) {

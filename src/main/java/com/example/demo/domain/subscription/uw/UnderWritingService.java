@@ -34,7 +34,7 @@ public class UnderWritingService implements IUnderWritingService {
             throw new DuplicatedUnderWritingException("Already Exists UnderWriting in progress.");
         }
 
-        UnderWriting underWriting = createAndSaveUnderWriting(subscription);
+        UnderWriting underWriting = _createAndSaveUnderWriting(subscription);
 
         messageService.send(subscription.getUnderWritingManagerName(), "[신규 보험가입 인가 요청] %s", subscription);
         messageService.send(subscription.getSubscriptionManagerName(), "[보험가입 인가 요청 처리 중] %s", underWriting);
@@ -42,25 +42,21 @@ public class UnderWritingService implements IUnderWritingService {
         return underWriting;
     }
 
-    private UnderWriting registerUnderWritingResult(UnderWriting underWriting) {
-        underWriting.complete();
-
-        UnderWriting modifiedUnderWriting = underWritingRepository.save(underWriting);
-
-        Subscription modifiedSubscription = modifiedUnderWriting.getSubscription();
-        subscriptionRepository.save(modifiedSubscription);
-
-        messageService.send(modifiedUnderWriting.getUnderWritingManagerName(), "[보험가입 인가 요청 처리 결과 등록 완료] %s", modifiedUnderWriting);
-        messageService.send(modifiedSubscription.getSubscriptionManagerName(), "[보험가입 인가 요청 처리 완료] %s", modifiedSubscription);
-
-        return modifiedUnderWriting;
-    }
-
     @Override
     public UnderWriting registerUnderWritingResult(Long underWritingId, Boolean result) {
         UnderWriting underWriting = underWritingRepository.findById(underWritingId);
-        underWriting.setResult(result);
-        return registerUnderWritingResult(underWriting);
+
+        underWriting.complete(result);
+
+        UnderWriting underWritingResult = underWritingRepository.save(underWriting);
+
+        Subscription modifiedSubscription = underWritingResult.getSubscription();
+        subscriptionRepository.save(modifiedSubscription);
+
+        messageService.send(underWritingResult.getUnderWritingManagerName(), "[보험가입 인가 요청 처리 결과 등록 완료] %s", underWritingResult);
+        messageService.send(modifiedSubscription.getSubscriptionManagerName(), "[보험가입 인가 요청 처리 완료] %s", modifiedSubscription);
+
+        return underWritingResult;
     }
 
     @Override
@@ -73,7 +69,7 @@ public class UnderWritingService implements IUnderWritingService {
         return underWritingRepository.findByPredicate(underWriting -> Objects.equals(underWriting.getManager().getId(), managerId));
     }
 
-    private UnderWriting createAndSaveUnderWriting(Subscription subscription) {
+    private UnderWriting _createAndSaveUnderWriting(Subscription subscription) {
         UnderWriting underWriting = new UnderWriting(subscription);
         UnderWritingManager underWritingManager = taskManagerConnectionPool.allocateUnderWritingManager();
         underWriting.allocateManager(underWritingManager);

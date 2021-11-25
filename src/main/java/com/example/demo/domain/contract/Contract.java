@@ -3,6 +3,8 @@ package com.example.demo.domain.contract;
 import com.example.demo.domain.common.CommonEntity;
 import com.example.demo.domain.manager.contract.ContractManager;
 import com.example.demo.domain.product.Product;
+import com.example.demo.domain.reward.Reward;
+import com.example.demo.domain.reward.RewardHistory;
 import com.example.demo.domain.subscription.Subscription;
 import com.example.demo.domain.user.User;
 import lombok.Getter;
@@ -18,6 +20,7 @@ public class Contract extends CommonEntity {
     private ContractManager manager;
     private ContractInfo contractInfo;
     private State state;
+    private RewardHistory rewardHistory;
 
     public Contract(Subscription subscription) {
         this(subscription.getProduct(), subscription.getUser(), null, new ContractInfo(subscription.getSubscriptionInfo()));
@@ -29,6 +32,7 @@ public class Contract extends CommonEntity {
         this.manager = manager;
         this.contractInfo = contractInfo;
         this.state = State.getDefault();
+        this.rewardHistory = new RewardHistory();
     }
 
     public enum State {
@@ -50,6 +54,14 @@ public class Contract extends CommonEntity {
     public void allocate(ContractManager manager) {
         setManager(manager);
         setState(State.PROGRESS);
+    }
+
+    public void addRewardHistory(Reward reward) {
+        rewardHistory.addReward(reward);
+    }
+
+    public Integer totalRewardHistoryCount() {
+        return rewardHistory.totalRewardHistoryCount();
     }
 
     @Override

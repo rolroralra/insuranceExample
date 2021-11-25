@@ -2,6 +2,7 @@ package com.example.demo.domain.subscription;
 
 import com.example.demo.domain.contract.Contract;
 import com.example.demo.domain.contract.ContractService;
+import com.example.demo.domain.contract.IContractService;
 import com.example.demo.domain.manager.TaskManagerConnectionPool;
 import com.example.demo.domain.manager.subscription.SubscriptionManager;
 import com.example.demo.domain.message.MessageService;
@@ -10,6 +11,7 @@ import com.example.demo.domain.product.Product;
 import com.example.demo.domain.product.ProductRepository;
 import com.example.demo.domain.product.mock.MockProductRepository;
 import com.example.demo.domain.subscription.mock.MockSubscriptionRepository;
+import com.example.demo.domain.subscription.uw.IUnderWritingService;
 import com.example.demo.domain.subscription.uw.UnderWriting;
 import com.example.demo.domain.subscription.uw.UnderWritingService;
 import com.example.demo.domain.user.User;
@@ -25,27 +27,28 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class SubscriptionService implements ISubscriptionService {
-    private final UnderWritingService underWritingService;
-    private final ContractService contractService;
-    private final MessageService messageService;
-    private final TaskManagerConnectionPool taskManagerConnectionPool;
+    private final IContractService contractService;
+
     private final SubscriptionRepository subscriptionRepository;
+
+    private final IUnderWritingService underWritingService;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
+    private final MessageService messageService;
+    private final TaskManagerConnectionPool taskManagerConnectionPool;
+
     public SubscriptionService() {
         this(
-                new UnderWritingService(),
                 new ContractService(),
-                new MockMessageService(),
-                new TaskManagerConnectionPool(),
                 MockSubscriptionRepository.getInstance(),
+                new UnderWritingService(),
                 MockProductRepository.getInstance(),
-                MockUserRepository.getInstance()
+                MockUserRepository.getInstance(),
+                new MockMessageService(),
+                new TaskManagerConnectionPool()
         );
     }
-
-
 
     @Override
     public List<Subscription> findAllSubscriptions() {
@@ -70,7 +73,7 @@ public class SubscriptionService implements ISubscriptionService {
     @Override
     public Subscription subscribeInsurance(Long productId, Long userId, SubscriptionInfo subscriptionInfo) {
         // 1. Request Parameter Validation Check
-        if (!checkValidationOfSubscription(productId, userId, subscriptionInfo)) {
+        if (!_checkValidationOfSubscription(productId, userId, subscriptionInfo)) {
             throw new InvalidRequestException(String.format("Not Valid Subscription Request. [%s]", subscriptionInfo));
         }
 
@@ -78,9 +81,9 @@ public class SubscriptionService implements ISubscriptionService {
         Product product = productRepository.findById(productId);
 
         // 2. Subscription 신규 추가
-        Subscription subscription = createAndSaveSubscription(product, user, subscriptionInfo);
+        Subscription subscription = _createAndSaveSubscription(product, user, subscriptionInfo);
 
-        // 2. SMS 메시지 전송
+        // 3. SMS 메시지 전송
         messageService.send(subscription.getSubscriptionManagerName(), "[신규 보험가입 요청] %s", subscription);
         messageService.send(subscription.getUserName(), "[신규 보험가입 요청 처리 중] %s", subscription);
 
@@ -119,7 +122,7 @@ public class SubscriptionService implements ISubscriptionService {
         return contractService.createContract(subscription.getId());
     }
 
-    private Subscription createAndSaveSubscription(Product product, User user, SubscriptionInfo subscriptionInfo) {
+    private Subscription _createAndSaveSubscription(Product product, User user, SubscriptionInfo subscriptionInfo) {
         // 1. Subscription 초기 생성
         Subscription subscription = new Subscription(product, user, subscriptionInfo);
 
@@ -131,7 +134,7 @@ public class SubscriptionService implements ISubscriptionService {
         return subscriptionRepository.save(subscription);
     }
 
-    private Boolean checkValidationOfSubscription(Long productId, Long userId, SubscriptionInfo subscriptionInfo) {
+    private Boolean _checkValidationOfSubscription(Long productId, Long userId, SubscriptionInfo subscriptionInfo) {
         if (Objects.isNull(productId) || Objects.isNull(userId) || Objects.isNull(subscriptionInfo)) {
             return false;
         }

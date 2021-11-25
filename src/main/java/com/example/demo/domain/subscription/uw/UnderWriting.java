@@ -69,7 +69,8 @@ public class UnderWriting extends CommonEntity {
         return state == State.COMPLETED;
     }
 
-    public void complete() {
+    public void complete(Boolean underWritingResult) {
+        setResult(underWritingResult);
         setState(State.COMPLETED);
         this.subscription.completeUW();
     }

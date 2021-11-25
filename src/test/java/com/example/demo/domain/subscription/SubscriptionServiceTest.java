@@ -5,7 +5,7 @@ import com.example.demo.domain.manager.subscription.SubscriptionManager;
 import com.example.demo.domain.product.IProductService;
 import com.example.demo.domain.product.Product;
 import com.example.demo.domain.product.ProductService;
-import com.example.demo.domain.product.productSearchCondition;
+import com.example.demo.domain.product.ProductSearchCondition;
 import com.example.demo.domain.subscription.uw.IUnderWritingService;
 import com.example.demo.domain.subscription.uw.UnderWriting;
 import com.example.demo.domain.subscription.uw.UnderWritingService;
@@ -44,16 +44,21 @@ class SubscriptionServiceTest {
     public void test_subscribe_insurance() {
         Product product = getAnyProduct();
         User user = getAnyUser();
-        SubscriptionInfo subscriptionInfo = new SubscriptionInfo();
+        SubscriptionInfo subscriptionInfo = SubscriptionInfo.builder()
+                .startDate("2021-11-25")
+                .expireDate("2041-11-25")
+                .insuranceMoneyPerMonth(100000L)
+                .build();
 
         Subscription subscription = subscriptionService.subscribeInsurance(product.getId(), user.getId(), subscriptionInfo);
+        System.out.println();
 
         assertThat(subscription)
                 .isNotNull()
                 .hasFieldOrProperty("id").isNotNull()
                 .hasFieldOrPropertyWithValue("product", product)
                 .hasFieldOrPropertyWithValue("user", user)
-                .hasFieldOrPropertyWithValue("state", Subscription.SubscriptionState.PROGRESS);
+                .hasFieldOrPropertyWithValue("state", Subscription.State.PROGRESS);
 
         assertThat(subscription.getUser())
                 .isEqualTo(user);
@@ -74,7 +79,7 @@ class SubscriptionServiceTest {
     @DisplayName("2. 보험가입자가 보험상품에 대해 Bad Request 경우 예외가 발생한다.")
     @Test
     public void test_exception_subscribe_insurance() {
-        SubscriptionInfo subscriptionInfo = new SubscriptionInfo();
+        SubscriptionInfo subscriptionInfo = SubscriptionInfo.builder().build();
         assertThatExceptionOfType(InvalidRequestException.class)
                 .isThrownBy(() -> subscriptionService.subscribeInsurance(0L, getAnyUser().getId(), subscriptionInfo));
 
@@ -104,7 +109,7 @@ class SubscriptionServiceTest {
             assertThat(modifiedSubscription)
                     .isNotNull()
                     .hasFieldOrPropertyWithValue("underWriting", underWriting)
-                    .hasFieldOrPropertyWithValue("state", Subscription.SubscriptionState.PROGRESS_UW);
+                    .hasFieldOrPropertyWithValue("state", Subscription.State.PROGRESS_UW);
 
             assertThat(modifiedSubscription.getUnderWritingManagerName())
                     .isNotNull()
@@ -132,23 +137,27 @@ class SubscriptionServiceTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     public void test_register_subscription_result(Boolean underWritingResult) {
-        Subscription subscription = subscriptionService.subscribeInsurance(getAnyProduct().getId(), getAnyUser().getId(), new SubscriptionInfo());
+        Subscription subscription = subscriptionService.subscribeInsurance(getAnyProduct().getId(), getAnyUser().getId(), SubscriptionInfo.builder().build());
+        System.out.println();
         assertThat(subscription)
                 .isNotNull()
                 .hasFieldOrProperty("id").isNotNull();
 
         UnderWriting underWriting = subscriptionService.requestUnderWriting(subscription.getId());
+        System.out.println();
         assertThat(underWriting)
                 .isNotNull()
                 .hasFieldOrProperty("id").isNotNull();
 
         UnderWriting resultUnderWriting = underWritingService.registerUnderWritingResult(underWriting.getId(), underWritingResult);
+        System.out.println();
         assertThat(resultUnderWriting)
                 .isNotNull()
                 .hasFieldOrProperty("id").isNotNull()
                 .hasFieldOrPropertyWithValue("result", underWritingResult);
 
         Contract contract = subscriptionService.registerSubscriptionResult(subscription.getId());
+        System.out.println();
 
         if (underWritingResult) {
             assertThat(contract)
@@ -165,13 +174,12 @@ class SubscriptionServiceTest {
     }
 
     private Product getAnyProduct() {
-        List<Product> productList = productService.findProducts(new productSearchCondition());
+        List<Product> productList = productService.findProducts(new ProductSearchCondition());
         return productList.get(new Random().nextInt(productList.size()));
     }
 
     private User getAnyUser() {
         List<User> userList = userService.findUsersByPredicate(user -> true);
-
         return userList.get(new Random().nextInt(userList.size()));
     }
 }

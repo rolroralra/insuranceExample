@@ -1,7 +1,8 @@
 package com.example.demo.domain.contract;
 
 import com.example.demo.domain.subscription.SubscriptionInfo;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDate;
