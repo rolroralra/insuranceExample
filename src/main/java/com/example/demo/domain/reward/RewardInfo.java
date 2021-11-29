@@ -2,6 +2,7 @@ package com.example.demo.domain.reward;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.beans.BeanUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,10 @@ public class RewardInfo {
                 new HashMap<>(),
                 ""
         );
+    }
+
+    public RewardInfo(RewardDto rewardDto) {
+        BeanUtils.copyProperties(rewardDto, this);
     }
 
     public static class Builder {

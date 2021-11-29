@@ -13,15 +13,20 @@ import java.util.Objects;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class User extends CommonEntity {
     private String name;
+    private UserInfo info;
+
+    public User() {
+        this("User");
+    }
+
+    public User(String name) {
+        this(name, new UserInfo());
+    }
 
     public User(UserDto userDto) {
         BeanUtils.copyProperties(userDto, this);
-    }
-
-    public User(ProductDto userDto) {
     }
 
     @Override
@@ -42,6 +47,7 @@ public class User extends CommonEntity {
         return "User{" +
                 "id=" + getId() +
                 ", name='" + name + '\'' +
+                ", info=" + info +
                 '}';
     }
 }

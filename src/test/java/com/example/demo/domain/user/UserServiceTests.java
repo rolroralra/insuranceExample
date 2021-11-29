@@ -57,7 +57,7 @@ class UserServiceTests {
     @DisplayName("4. 보험가입자를 추가할 수 있다. (회원가입)")
     @Test
     public void test_save_user() {
-        User user = new com.example.demo.domain.user.User("New Added User");
+        User user = new User("New Added User");
         User addedUser = userService.addUser(user);
 
         assertThat(addedUser)

@@ -28,7 +28,7 @@ public class UserController {
 //            @SortDefault(sort = "id", direction = Sort.Direction.DESC),
 //            @SortDefault(sort = "name", direction = Sort.Direction.DESC)
 //    })
-    public ResponseEntity<ApiResult<List<com.example.demo.domain.user.UserDto>>> searchAllUsers(@PageableDefault(sort = {"id", "name"}, direction = Sort.Direction.ASC, size = 10) Pageable pageable) {
+    public ResponseEntity<ApiResult<List<UserDto>>> searchAllUsers(@PageableDefault(sort = {"id", "name"}, direction = Sort.Direction.ASC, size = 10) Pageable pageable) {
         System.out.println(pageable);
         return ApiResult.succeed(
                 userService.findAllUsers().stream()
@@ -38,7 +38,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/users/{userId}", method = {RequestMethod.GET})
-    public ResponseEntity<?> searchProductById(@PathVariable Long userId) {
+    public ResponseEntity<?> searchUserById(@PathVariable Long userId) {
         User user = userService.findUserById(userId);
 
         if (Objects.isNull(user)) {
@@ -49,14 +49,14 @@ public class UserController {
     }
 
     @RequestMapping(value = "/users", method = {RequestMethod.POST})
-    public ResponseEntity<ApiResult<?>> searchProductsByCondition(@RequestBody ProductDto userDto) {
+    public ResponseEntity<ApiResult<?>> searchUsersByCondition(@RequestBody UserDto userDto) {
         User user = new User(userDto);
 
         return ApiResult.failed("Not Implemented");
     }
 
     @RequestMapping(value = "/users/add", method = {RequestMethod.POST, RequestMethod.PUT})
-    public ResponseEntity<ApiResult<com.example.demo.domain.user.UserDto>> addProduct(@RequestBody com.example.demo.domain.user.UserDto userDto, UriComponentsBuilder uriComponentsBuilder) {
+    public ResponseEntity<ApiResult<UserDto>> addUser(@RequestBody com.example.demo.domain.user.UserDto userDto, UriComponentsBuilder uriComponentsBuilder) {
         User user = userService.addUser(new User(userDto));
 
         URI location = uriComponentsBuilder.path("/api/v1/users/{userId}")
@@ -71,7 +71,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/users/{userId}", method = {RequestMethod.POST, RequestMethod.PUT})
-    public ResponseEntity<ApiResult<com.example.demo.domain.user.UserDto>> modifyProduct(@PathVariable Long userId, @RequestBody com.example.demo.domain.user.UserDto userDto) {
+    public ResponseEntity<ApiResult<UserDto>> modifyUser(@PathVariable Long userId, @RequestBody com.example.demo.domain.user.UserDto userDto) {
         userDto.setId(userId);
         User user = new User(userDto);
 

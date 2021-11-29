@@ -12,13 +12,17 @@ import java.util.Objects;
 @Setter
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class Product extends CommonEntity {
     private String name;
     private ProductType type;
+    private ProductInfo info;
+
+    public Product() {
+        this("Product");
+    }
 
     public Product(String name) {
-        this(name, ProductType.getDefault());
+        this(name, ProductType.getDefault(), new ProductInfo());
     }
 
     public Product(ProductDto productDto) {
@@ -48,6 +52,7 @@ public class Product extends CommonEntity {
                 "id=" + getId() +
                 ", name='" + name + '\'' +
                 ", type=" + type +
+                ", info=" + info +
                 '}';
     }
 }

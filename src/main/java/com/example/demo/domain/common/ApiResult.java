@@ -1,5 +1,6 @@
 package com.example.demo.domain.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -10,14 +11,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Optional;
+
 @Getter
 @RequiredArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ApiResult<T> {
     @ApiModelProperty
     private final T data;
     @ApiModelProperty
     private final String error;
-    @ApiModelProperty
+    @ApiModelProperty(example = "OK")
     private final HttpStatus httpStatus;
 
     public static <T> ResponseEntity<ApiResult<T>> succeed(T data) {
